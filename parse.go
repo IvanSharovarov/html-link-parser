@@ -3,6 +3,7 @@ package html_link_parser
 import (
 	"golang.org/x/net/html"
 	"io"
+	"strings"
 )
 
 type Link struct {
@@ -31,8 +32,22 @@ func buildLink(n *html.Node) Link {
 			break
 		}
 	}
-	ret.Text = "TODO: text"
+	ret.Text = text(n)
 	return ret
+}
+
+func text(n *html.Node) string {
+	if n.Type == html.TextNode {
+		return n.Data
+	}
+	if n.Type != html.ElementNode {
+		return ""
+	}
+	var ret string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		ret += text(c) + " "
+	}
+	return strings.Join(strings.Fields(ret), " ")
 }
 
 func linkNodes(n *html.Node) []*html.Node {
